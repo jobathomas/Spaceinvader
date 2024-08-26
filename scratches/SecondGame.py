@@ -61,8 +61,9 @@ ammo_image= pygame.transform.scale(ammo_image,(50,50))
 
 ammo_sfx_load = pygame.mixer.music.load("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/reload.mp3")
 
-
-
+#  load pause screen image
+pause_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/space.jpg")
+pause_image = pygame.transform.scale(pause_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
 # UI sfx
 click = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/click.mp3")
 loading_music = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/loading.mp3")
@@ -139,9 +140,10 @@ class Spaceship(pygame.sprite.Sprite):
             # record current time
             self.previous_time = current_time # timer reset
 
-        if spaceship.health_remaining <=0:
-            spaceship.kill()
-            sys.exit()
+        if self.health_remaining <=0:
+            self.kill()
+
+
 
 
         # update mask - in update function so mask moves as spaceship moves from left to right
@@ -387,7 +389,7 @@ class Button():
 
 
 def play():
-    global theme
+
     theme = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
     theme.set_volume(1)
     theme.play(-1)  # music will play indefinitely with -1 arg
@@ -405,6 +407,9 @@ def play():
 
         if speed >= 15:
             speed = 15
+        if spaceship.health_remaining <=0:
+
+            game_over()
 
         clock.tick(60)
 
@@ -459,7 +464,7 @@ def pause():
 
     while True:
 
-        screen.blit(bg_image,(0,0))
+        screen.blit(pause_image,(0,0))
 
 
 
@@ -470,6 +475,7 @@ def pause():
         key = pygame.key.get_pressed()
         if key[pygame.K_k]:
             pygame.mixer.unpause()
+            play()
 
 
 
@@ -478,6 +484,22 @@ def pause():
         pygame.display.update()
 
 
+def game_over():
+
+    while True:
+
+        pygame.mixer.stop()
+
+        screen.fill((0,0,0))
+
+
+
+
+        for event in pygame.event.get():  # Event handler
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+        pygame.display.update()
 
 
 def main_menu():
@@ -497,7 +519,6 @@ def main_menu():
 
         for event in pygame.event.get():  # Event handler
             if event.type == pygame.QUIT:
-                pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.check_for_input(pygame.mouse.get_pos()):
@@ -508,7 +529,6 @@ def main_menu():
                 if options_button.check_for_input(pygame.mouse.get_pos()):
                     pass
                 if quit_button.check_for_input(pygame.mouse.get_pos()):
-                    pygame.quit()
                     sys.exit()
 
 
