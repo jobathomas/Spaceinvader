@@ -518,6 +518,5 @@ def main_menu():
 
 
 
-main_menu = 4
+main_menu()
 
-test = 5
