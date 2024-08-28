@@ -1,0 +1,388 @@
+<html>
+<head>
+<title>SecondGame.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #6897bb;}
+.s4 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+SecondGame.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+<span class="s0">import </span><span class="s1">random</span>
+<span class="s0">from </span><span class="s1">playsound </span><span class="s0">import </span><span class="s1">playsound</span>
+
+<span class="s2"># initialise pygame objects</span>
+<span class="s1">pygame.init()</span>
+
+<span class="s2">#  specify screen dimensions</span>
+<span class="s1">SCREEN_WIDTH = </span><span class="s3">800</span>
+<span class="s1">SCREEN_HEIGHT = </span><span class="s3">600</span>
+
+<span class="s2">#  create pygame screen</span>
+
+<span class="s1">screen = pygame.display.set_mode((SCREEN_WIDTH</span><span class="s0">,</span><span class="s1">SCREEN_HEIGHT))</span>
+
+<span class="s2"># set game caption</span>
+<span class="s1">pygame.display.set_caption(</span><span class="s4">'Space invaders'</span><span class="s1">)</span>
+
+<span class="s2"># load background images</span>
+<span class="s1">menu_image = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/space2.png&quot;</span><span class="s1">)</span>
+<span class="s1">menu_image = pygame.transform.scale(menu_image</span><span class="s0">,</span><span class="s1">(SCREEN_WIDTH</span><span class="s0">,</span><span class="s1">SCREEN_HEIGHT))</span>
+
+
+<span class="s1">bg_image = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/space2.png&quot;</span><span class="s1">)</span>
+
+<span class="s1">bg_image = pygame.transform.scale(bg_image</span><span class="s0">,</span><span class="s1">(SCREEN_WIDTH</span><span class="s0">,</span><span class="s1">SCREEN_HEIGHT))</span>
+
+
+<span class="s2">#  set game icon</span>
+<span class="s1">gameIcon = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/icon.jpg&quot;</span><span class="s1">)</span>
+<span class="s1">pygame.display.set_icon(gameIcon)</span>
+
+<span class="s1">PLAYER_WIDTH = </span><span class="s3">50</span>
+
+
+<span class="s2"># load game sounds</span>
+<span class="s1">missile_sfx = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/missile.wav&quot;</span><span class="s1">)</span>
+<span class="s1">damage = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/explosion2.mp3&quot;</span><span class="s1">)</span>
+<span class="s1">game_over = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/gameover.mp3&quot;</span><span class="s1">)</span>
+<span class="s1">gun = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/raygun.wav&quot;</span><span class="s1">)</span>
+<span class="s1">explosion_sound = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/explosion.mp3&quot;</span><span class="s1">)</span>
+<span class="s1">explosion2_sound = pygame.mixer.Sound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/gameover.mp3&quot;</span><span class="s1">)</span>
+
+<span class="s2"># create clock object</span>
+<span class="s1">clock = pygame.time.Clock()</span>
+
+
+<span class="s2">#  load player image</span>
+<span class="s1">player_image = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/icon.jpg&quot;</span><span class="s1">)</span>
+
+<span class="s1">enemy_image = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/enemy.png&quot;</span><span class="s1">)</span>
+<span class="s1">enemy_image = pygame.transform.scale(enemy_image</span><span class="s0">,</span><span class="s1">(</span><span class="s3">50</span><span class="s0">,</span><span class="s3">50</span><span class="s1">))</span>
+
+<span class="s1">bullet_image = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/storm_shadow.png&quot;</span><span class="s1">)</span>
+
+
+<span class="s2">#  define colours</span>
+
+<span class="s1">red = (</span><span class="s3">255</span><span class="s0">,</span><span class="s3">0</span><span class="s0">,</span><span class="s3">0</span><span class="s1">)</span>
+<span class="s1">green = (</span><span class="s3">0</span><span class="s0">,</span><span class="s3">255</span><span class="s0">,</span><span class="s3">0</span><span class="s1">)</span>
+<span class="s1">blue = (</span><span class="s3">0</span><span class="s0">,</span><span class="s3">0</span><span class="s0">,</span><span class="s3">255</span><span class="s1">)</span>
+
+<span class="s1">position = </span><span class="s3">0</span>
+<span class="s1">speed = </span><span class="s3">5</span>
+
+
+<span class="s2">#  writing main game code</span>
+<span class="s0">def </span><span class="s1">background():</span>
+    <span class="s0">global </span><span class="s1">position</span><span class="s0">,</span><span class="s1">speed</span>
+    <span class="s1">screen.blit(bg_image</span><span class="s0">,</span><span class="s1">(</span><span class="s3">0</span><span class="s0">,</span><span class="s1">position))</span>
+    <span class="s1">screen.blit(bg_image</span><span class="s0">,</span><span class="s1">(</span><span class="s3">0</span><span class="s0">,</span><span class="s1">-SCREEN_HEIGHT + position))</span>
+
+    <span class="s1">position += speed</span>
+
+    <span class="s0">if </span><span class="s1">position &gt; SCREEN_HEIGHT:</span>
+       <span class="s1">position = </span><span class="s3">0</span>
+
+<span class="s0">class </span><span class="s1">Spaceship(pygame.sprite.Sprite):</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">,</span><span class="s1">x</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s1">health):</span>
+        <span class="s1">pygame.sprite.Sprite.__init__(self)  </span><span class="s2"># Call sprite initialiser</span>
+        <span class="s1">self.image = pygame.transform.scale(player_image</span><span class="s0">,</span><span class="s1">(</span><span class="s3">50</span><span class="s0">,</span><span class="s3">50</span><span class="s1">))</span>
+        <span class="s1">self.rect = self.image.get_rect()  </span><span class="s2">#  Creates a rectangle from the image</span>
+        <span class="s1">self.rect.topleft = (x</span><span class="s0">,</span><span class="s1">y) </span><span class="s2"># Specifies lcoation of rectangle</span>
+        <span class="s1">self.velocity = </span><span class="s3">10</span>
+        <span class="s1">self.health_start = health</span>
+        <span class="s1">self.health_remaining = health</span>
+        <span class="s1">self.previous_time = pygame.time.get_ticks()  </span><span class="s2"># when an instance of Spaceship is created, the time is recorded here</span>
+        <span class="s1">self.font = pygame.font.SysFont(</span><span class="s4">'ebrima'</span><span class="s0">, </span><span class="s3">40</span><span class="s1">) </span><span class="s2"># create font object</span>
+        <span class="s1">self.score = </span><span class="s3">0</span>
+
+    <span class="s2">#  overriding &quot;update&quot; method in Sprite class</span>
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+
+
+        <span class="s2">#  get key press</span>
+        <span class="s1">key = pygame.key.get_pressed()</span>
+        <span class="s0">if </span><span class="s1">key[pygame.K_LEFT] </span><span class="s0">and </span><span class="s1">self.rect.x &gt; </span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">self.rect.x-= self.velocity</span>
+        <span class="s0">if </span><span class="s1">key[pygame.K_RIGHT] </span><span class="s0">and </span><span class="s1">self.rect.x &lt; SCREEN_WIDTH - PLAYER_WIDTH:</span>
+            <span class="s1">self.rect.x+= self.velocity</span>
+
+        <span class="s1">self.text = self.font.render(</span><span class="s4">f'Score:</span><span class="s0">{</span><span class="s1">self.score</span><span class="s0">}</span><span class="s4">'</span><span class="s0">, True, </span><span class="s4">'white'</span><span class="s1">)  </span><span class="s2"># create text surface object</span>
+        <span class="s1">self.textRect = self.text.get_rect(topleft=(</span><span class="s3">10</span><span class="s0">, </span><span class="s3">10</span><span class="s1">))  </span><span class="s2"># create rectangle from text surface object</span>
+        <span class="s1">screen.blit(self.text</span><span class="s0">,</span><span class="s1">self.textRect)</span>
+
+
+        <span class="s2">#  draw health bar</span>
+        <span class="s1">pygame.draw.rect(screen</span><span class="s0">,</span><span class="s1">red</span><span class="s0">,</span><span class="s1">pygame.Rect(self.rect.x</span><span class="s0">,</span><span class="s1">self.rect.y + </span><span class="s3">50</span><span class="s0">,</span><span class="s1">self.rect.width</span><span class="s0">,</span><span class="s3">10</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s0">if </span><span class="s1">self.health_remaining &gt;</span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">pygame.draw.rect(screen</span><span class="s0">, </span><span class="s1">green</span><span class="s0">, </span><span class="s1">pygame.Rect(self.rect.x</span><span class="s0">, </span><span class="s1">self.rect.y + </span><span class="s3">50</span><span class="s0">,</span>
+                                                        <span class="s1">int(self.rect.width *(self.health_remaining/self.health_start))</span><span class="s0">,</span><span class="s3">10</span><span class="s1">))</span>
+        <span class="s1">current_time = pygame.time.get_ticks()</span>
+        <span class="s1">cooldown = </span><span class="s3">500</span>
+
+        <span class="s0">if </span><span class="s1">key[pygame.K_SPACE] </span><span class="s0">and </span><span class="s1">current_time - self.previous_time &gt; cooldown:</span>
+            <span class="s1">bullet1 = Bullets(spaceship.rect.centerx - </span><span class="s3">5</span><span class="s0">, </span><span class="s1">spaceship.rect.centery)</span>
+            <span class="s1">bullet_group.add(bullet1)</span>
+            <span class="s1">gun.play(maxtime=</span><span class="s3">350</span><span class="s1">)</span>
+            <span class="s2"># record current time</span>
+            <span class="s1">self.previous_time = current_time </span><span class="s2"># timer reset</span>
+
+        <span class="s0">if </span><span class="s1">spaceship.health_remaining &lt;=</span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">spaceship.kill()</span>
+            <span class="s0">global </span><span class="s1">run</span>
+            <span class="s1">run = </span><span class="s0">False</span>
+
+
+        <span class="s2"># update mask - in update function so mask moves as spaceship moves from left to right</span>
+        <span class="s1">self.mask = pygame.mask.from_surface(self.image)</span>
+
+<span class="s2">#  create sprite group</span>
+<span class="s1">player_group = pygame.sprite.Group()</span>
+<span class="s2">#  create spaceship object</span>
+<span class="s1">spaceship = Spaceship(SCREEN_WIDTH/</span><span class="s3">2</span><span class="s0">,</span><span class="s1">SCREEN_HEIGHT - (PLAYER_WIDTH*</span><span class="s3">2</span><span class="s1">)</span><span class="s0">,</span><span class="s3">5</span><span class="s1">) </span><span class="s2"># create spaceship object of spaceship class</span>
+<span class="s1">player_group.add(spaceship) </span><span class="s2">#  add spaceship object to spaceship sprite group</span>
+
+<span class="s0">class </span><span class="s1">Enemy(pygame.sprite.Sprite):</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">,</span><span class="s1">x</span><span class="s0">,</span><span class="s1">y):</span>
+        <span class="s1">pygame.sprite.Sprite.__init__(self)</span>
+        <span class="s1">self.image = pygame.transform.rotate(enemy_image</span><span class="s0">,</span><span class="s3">180</span><span class="s1">)</span>
+        <span class="s1">self.rect = self.image.get_rect()</span>
+        <span class="s1">self.rect.topleft = (x</span><span class="s0">,</span><span class="s1">y)</span>
+        <span class="s1">self.velocity = </span><span class="s3">7</span>
+        <span class="s1">self.active = </span><span class="s0">True</span>
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+        <span class="s1">self.rect.y += self.velocity</span>
+        <span class="s0">if </span><span class="s1">self.rect.y &gt; SCREEN_HEIGHT:</span>
+            <span class="s1">self.rect.x = random.randint(</span><span class="s3">0</span><span class="s0">, </span><span class="s1">SCREEN_WIDTH)</span>
+            <span class="s1">self.rect.y = -</span><span class="s3">5</span>
+            <span class="s1">self.velocity += </span><span class="s3">0.1</span>
+            <span class="s1">self.active = </span><span class="s0">True</span>
+        <span class="s0">if </span><span class="s1">self.rect.y &lt;=</span><span class="s3">20</span><span class="s1">:</span>
+            <span class="s1">missile_sfx.play(</span><span class="s3">0</span><span class="s0">,</span><span class="s3">350</span><span class="s1">)</span>
+        <span class="s1">self.check_collision()</span>
+
+
+    <span class="s0">def </span><span class="s1">check_collision(self):</span>
+        <span class="s0">if </span><span class="s1">pygame.sprite.spritecollide(self</span><span class="s0">,</span><span class="s1">player_group</span><span class="s0">,False, </span><span class="s1">pygame.sprite.collide_mask) </span><span class="s0">and </span><span class="s1">self.active: </span><span class="s2"># pygame collision check is</span>
+                                                                                             <span class="s2"># rectangular by default</span>
+            <span class="s2"># checks whether the rect of one sprite intersects with the rect of another sprite</span>
+            <span class="s1">damage.play(maxtime=</span><span class="s3">260</span><span class="s1">)</span>
+            <span class="s1">spaceship.health_remaining-=</span><span class="s3">1</span>
+            <span class="s1">self.active = </span><span class="s0">False  </span><span class="s2"># deactivates missile to prevent duplicate collisions</span>
+
+
+
+
+
+<span class="s2"># create enemy sprite group</span>
+<span class="s1">enemy_group = pygame.sprite.Group()</span>
+<span class="s2"># create missile object</span>
+<span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s3">8</span><span class="s1">):</span>
+    <span class="s1">missile = Enemy(random.randint(</span><span class="s3">0</span><span class="s0">,</span><span class="s1">SCREEN_WIDTH)</span><span class="s0">,</span><span class="s3">0</span><span class="s1">)</span>
+    <span class="s1">enemy_group.add(missile) </span><span class="s2"># add 8 missiles to enemy sprite group</span>
+
+<span class="s0">class </span><span class="s1">Bullets(pygame.sprite.Sprite):</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">,</span><span class="s1">x</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s1">):</span>
+        <span class="s1">pygame.sprite.Sprite.__init__(self)  </span><span class="s2"># Call sprite initialiser</span>
+        <span class="s1">self.image = bullet_image</span>
+        <span class="s1">self.rect = self.image.get_rect()  </span><span class="s2">#  Assigns image to rectangle</span>
+        <span class="s1">self.rect.topleft = (x</span><span class="s0">,</span><span class="s1">y) </span><span class="s2"># Specifies lcoation of rectangle</span>
+
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+        <span class="s1">self.rect.y-=</span><span class="s3">5</span>
+        <span class="s0">if </span><span class="s1">self.rect.bottom &lt; </span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">self.kill()</span>
+        <span class="s1">self.check_collision()</span>
+
+
+    <span class="s0">def </span><span class="s1">check_collision(self):</span>
+        <span class="s0">if </span><span class="s1">pygame.sprite.spritecollide(self</span><span class="s0">, </span><span class="s1">enemy_group</span><span class="s0">, True</span><span class="s1">):</span>
+            <span class="s1">self.kill()</span>
+            <span class="s1">explosion = Explosion(self.rect.centerx</span><span class="s0">,</span><span class="s1">self.rect.centery</span><span class="s0">,</span><span class="s3">2</span><span class="s1">)</span>
+            <span class="s1">explosion_group.add(explosion)</span>
+            <span class="s1">explosion_sound.play()</span>
+            <span class="s1">spaceship.score +=</span><span class="s3">1</span>
+
+
+<span class="s1">bullet_group = pygame.sprite.Group()</span>
+
+<span class="s0">class </span><span class="s1">Explosion(pygame.sprite.Sprite):</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">,</span><span class="s1">x</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s1">size):</span>
+        <span class="s1">pygame.sprite.Sprite.__init__(self)</span>
+        <span class="s1">self.images = []</span>
+        <span class="s0">for </span><span class="s1">num </span><span class="s0">in </span><span class="s1">range(</span><span class="s3">1</span><span class="s0">,</span><span class="s3">6</span><span class="s1">):</span>
+            <span class="s1">img = pygame.image.load(</span><span class="s4">f&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/exp</span><span class="s0">{</span><span class="s1">num</span><span class="s0">}</span><span class="s4">.png&quot;</span><span class="s1">)</span>
+            <span class="s0">if </span><span class="s1">size == </span><span class="s3">1</span><span class="s1">:</span>
+                <span class="s1">pygame.transform.scale(img</span><span class="s0">,</span><span class="s1">(</span><span class="s3">20</span><span class="s0">,</span><span class="s3">20</span><span class="s1">))</span>
+            <span class="s0">if </span><span class="s1">size == </span><span class="s3">2</span><span class="s1">:</span>
+                <span class="s1">pygame.transform.scale(img</span><span class="s0">,</span><span class="s1">(</span><span class="s3">40</span><span class="s0">,</span><span class="s3">40</span><span class="s1">))</span>
+            <span class="s0">if </span><span class="s1">size == </span><span class="s3">3</span><span class="s1">:</span>
+                <span class="s1">pygame.transform.scale(img</span><span class="s0">,</span><span class="s1">(</span><span class="s3">40</span><span class="s0">,</span><span class="s3">40</span><span class="s1">))</span>
+            <span class="s2"># add image to list</span>
+            <span class="s1">self.images.append(img)</span>
+        <span class="s1">self.index = </span><span class="s3">0</span>
+        <span class="s1">self.image = self.images[self.index]</span>
+        <span class="s1">self.rect = self.image.get_rect()</span>
+        <span class="s1">self.rect.center = [x</span><span class="s0">,</span><span class="s1">y]</span>
+        <span class="s1">self.counter = </span><span class="s3">0</span>
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+        <span class="s1">explosion_speed = </span><span class="s3">3</span>
+        <span class="s2"># update explosion animation - (explosion_speed - self.counter is interval between images)</span>
+        <span class="s1">self.counter += </span><span class="s3">1</span>
+
+        <span class="s2"># condition prevents from list index being out of range - self.index must be less than 5-1 (4), which represents</span>
+        <span class="s2"># the final image in self.images</span>
+        <span class="s2"># if counter is greater than explosion_speed, move onto next image in list</span>
+        <span class="s0">if </span><span class="s1">self.counter &gt;= explosion_speed </span><span class="s0">and </span><span class="s1">self.index &lt; len(self.images) - </span><span class="s3">1</span><span class="s1">:</span>
+            <span class="s1">self.counter = </span><span class="s3">0</span>
+            <span class="s1">self.index += </span><span class="s3">1</span>
+            <span class="s1">self.image = self.images[self.index]</span>
+
+        <span class="s2"># if animation complete, delete explosion</span>
+        <span class="s0">if </span><span class="s1">self.index &gt;= len(self.images) - </span><span class="s3">1 </span><span class="s0">and </span><span class="s1">self.counter &gt;= explosion_speed:</span>
+            <span class="s1">self.kill()</span>
+
+<span class="s1">explosion_group = pygame.sprite.Group()</span>
+
+<span class="s0">def </span><span class="s1">enemy_replenish():</span>
+
+
+    <span class="s0">if </span><span class="s1">len(enemy_group) &lt; </span><span class="s3">2</span><span class="s1">:</span>
+        <span class="s1">explosion2_sound.play()</span>
+        <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s3">10</span><span class="s1">):</span>
+            <span class="s1">missile = Enemy(random.randint(</span><span class="s3">0</span><span class="s0">, </span><span class="s1">SCREEN_WIDTH)</span><span class="s0">, </span><span class="s1">-</span><span class="s3">20</span><span class="s1">)</span>
+            <span class="s1">enemy_group.add(missile)  </span><span class="s2"># add 8 missiles to enemy sprite group</span>
+            <span class="s1">missile.velocity += </span><span class="s3">2.25</span>
+
+<span class="s2"># writing screen UI code</span>
+
+
+<span class="s2">#  creating button class</span>
+<span class="s0">class </span><span class="s1">Button():</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">image</span><span class="s0">, </span><span class="s1">x_pos</span><span class="s0">, </span><span class="s1">y_pos</span><span class="s0">, </span><span class="s1">text_input):</span>
+        <span class="s1">self.font = pygame.font.SysFont(</span><span class="s4">'arial'</span><span class="s0">,</span><span class="s3">30</span><span class="s1">)  </span><span class="s2"># creates a font object loaded from system fonts</span>
+        <span class="s1">self.image = image</span>
+        <span class="s1">self.x_pos = x_pos</span>
+        <span class="s1">self.y_pos = y_pos</span>
+        <span class="s1">self.rect = self.image.get_rect(center =(self.x_pos</span><span class="s0">,</span><span class="s1">self.y_pos)) </span><span class="s2">#  creating rect from image</span>
+        <span class="s1">self.text_input = text_input</span>
+        <span class="s1">self.text = self.font.render(self.text_input</span><span class="s0">,True,</span><span class="s4">'white'</span><span class="s1">)</span>
+        <span class="s1">self.text_rect = self.text.get_rect(center = (self.x_pos</span><span class="s0">,</span><span class="s1">self.y_pos))</span>
+
+
+    <span class="s0">def </span><span class="s1">draw(self):</span>
+        <span class="s1">screen.blit(self.image</span><span class="s0">,</span><span class="s1">(self.rect))  </span><span class="s2"># blit image onto screen in the location of self.rect</span>
+        <span class="s1">screen.blit(self.text</span><span class="s0">,</span><span class="s1">self.text_rect) </span><span class="s2"># blit text onto screen in location of text_rect</span>
+
+    <span class="s0">def </span><span class="s1">check_for_input(self</span><span class="s0">, </span><span class="s1">position):</span>
+        <span class="s0">global </span><span class="s1">main</span>
+        <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+            <span class="s0">if </span><span class="s1">position[</span><span class="s3">0</span><span class="s1">] </span><span class="s0">in </span><span class="s1">range(self.rect.left</span><span class="s0">,</span><span class="s1">self.rect.right) </span><span class="s0">and </span><span class="s1">position[</span><span class="s3">1</span><span class="s1">] </span><span class="s0">in </span><span class="s1">range(self.rect.top</span><span class="s0">, </span><span class="s1">self.rect.bottom):</span>
+                <span class="s1">self.text = self.font.render(self.text_input</span><span class="s0">, True,</span><span class="s4">'red'</span><span class="s1">)</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">self.text = self.font.render(self.text_input</span><span class="s0">, True, </span><span class="s4">'white'</span><span class="s1">)</span>
+
+                <span class="s0">if </span><span class="s1">event.type == pygame.MOUSEBUTTONDOWN:</span>
+                    <span class="s1">main = </span><span class="s0">False</span>
+
+    <span class="s2"># def change_colour(self,position):</span>
+    <span class="s2">#     if position[0] in range(self.rect.left,self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):</span>
+    <span class="s2">#         main = False</span>
+
+
+
+<span class="s1">button_surface = pygame.image.load(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/button1.png&quot;</span><span class="s1">)</span>
+<span class="s1">button_surface = pygame.transform.scale(button_surface</span><span class="s0">,</span><span class="s1">(</span><span class="s3">300</span><span class="s0">,</span><span class="s3">200</span><span class="s1">))</span>
+
+
+<span class="s1">button = Button(button_surface</span><span class="s0">,</span><span class="s1">SCREEN_WIDTH/</span><span class="s3">2</span><span class="s0">,</span><span class="s1">SCREEN_HEIGHT/</span><span class="s3">2</span><span class="s0">,</span><span class="s4">'PLAY'</span><span class="s1">)</span>
+
+
+
+<span class="s1">main = </span><span class="s0">True</span>
+<span class="s0">def </span><span class="s1">main_menu():</span>
+    <span class="s0">global </span><span class="s1">main</span>
+    <span class="s1">pygame.display.set_caption(</span><span class="s4">'Main menu'</span><span class="s1">)</span>
+
+    <span class="s0">while </span><span class="s1">main:</span>
+
+
+        <span class="s1">screen.blit(menu_image</span><span class="s0">, </span><span class="s1">(</span><span class="s3">0</span><span class="s0">, </span><span class="s3">0</span><span class="s1">))</span>
+        <span class="s1">button.draw()</span>
+        <span class="s1">button.check_for_input(pygame.mouse.get_pos())</span>
+
+
+        <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():  </span><span class="s2"># Event handler</span>
+            <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                <span class="s1">main = </span><span class="s0">False</span>
+
+        <span class="s1">pygame.display.update()</span>
+
+
+<span class="s1">main_menu()</span>
+<span class="s1">playsound(</span><span class="s4">&quot;C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3&quot;</span><span class="s0">,</span><span class="s1">block=</span><span class="s0">False</span><span class="s1">)</span>
+
+
+<span class="s1">run = </span><span class="s0">True</span>
+
+<span class="s0">while </span><span class="s1">run:</span>
+
+
+    <span class="s2">#  drawing background image onto screen</span>
+    <span class="s1">background()</span>
+
+    <span class="s1">clock.tick(</span><span class="s3">60</span><span class="s1">)</span>
+
+    <span class="s1">enemy_replenish()</span>
+
+    <span class="s2">#  Event handler code</span>
+    <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get(): </span><span class="s2">#  Event handler</span>
+        <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+            <span class="s1">run = </span><span class="s0">False</span>
+
+
+    <span class="s2">#  draw sprite groups</span>
+
+    <span class="s1">player_group.update()</span>
+    <span class="s1">player_group.draw(screen)</span>
+
+    <span class="s1">enemy_group.update()</span>
+    <span class="s1">enemy_group.draw(screen)</span>
+
+    <span class="s1">bullet_group.update()</span>
+    <span class="s1">bullet_group.draw(screen)</span>
+
+    <span class="s1">explosion_group.update()</span>
+    <span class="s1">explosion_group.draw(screen)</span>
+
+
+
+
+
+    <span class="s1">pygame.display.update()</span>
+
+<span class="s2"># def game_over():</span>
+<span class="s2">#</span>
+<span class="s2">#     game_over_text =</span>
+
+
+
+
+<span class="s1">pygame.quit()</span>
+</pre>
+</body>
+</html>

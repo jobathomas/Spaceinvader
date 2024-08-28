@@ -2,6 +2,8 @@ import sys
 import pygame
 import random
 
+from pygame import MOUSEBUTTONDOWN
+
 # initialise pygame objects
 pygame.init()
 
@@ -390,13 +392,16 @@ class Button():
 
 def play():
 
+
     theme = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
     theme.set_volume(1)
     theme.play(-1)  # music will play indefinitely with -1 arg
 
+
     speed = 5
 
     while True:
+
 
         pygame.display.set_caption('Space Invader')
 
@@ -454,9 +459,13 @@ button_height = 200
 button_surface = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/button1.png")
 button_surface = pygame.transform.scale(button_surface,(button_width,button_height))
 
+
+
 play_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT/4, 'PLAY')
 options_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 'OPTIONS')
 quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT - 150, 'QUIT')
+back_button = Button(button_surface, SCREEN_WIDTH / 4, button_height, 'BACK')
+
 
 def pause():
 
@@ -475,13 +484,43 @@ def pause():
         key = pygame.key.get_pressed()
         if key[pygame.K_k]:
             pygame.mixer.unpause()
-            play()
+            break #  pause loop broken and returns to play() while loop
 
 
 
 
 
         pygame.display.update()
+
+def options():
+
+    pygame.display.set_caption('Options')
+
+    while True:
+
+        screen.fill('cyan')
+
+        back_button.draw()
+        back_button.change_colour(pygame.mouse.get_pos())
+
+
+
+        for event in pygame.event.get():  # Event handler
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button.check_for_input(pygame.mouse.get_pos()):
+                    break
+
+
+
+
+
+
+        pygame.display.update()
+
+
 
 
 def game_over():
@@ -491,6 +530,7 @@ def game_over():
         pygame.mixer.stop()
 
         screen.fill((0,0,0))
+
 
 
 
@@ -527,7 +567,7 @@ def main_menu():
                     pygame.time.delay(600)
                     play()
                 if options_button.check_for_input(pygame.mouse.get_pos()):
-                    pass
+                    options()
                 if quit_button.check_for_input(pygame.mouse.get_pos()):
                     sys.exit()
 
