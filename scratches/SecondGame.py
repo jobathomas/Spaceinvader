@@ -1,6 +1,4 @@
 import sys
-from calendar import month
-
 import pygame
 import random
 
@@ -132,14 +130,13 @@ class Spaceship(pygame.sprite.Sprite):
     def update(self):
 
 
+
         #  get key press
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x-= self.velocity
         if key[pygame.K_RIGHT] and self.rect.x < SCREEN_WIDTH - PLAYER_WIDTH:
             self.rect.x+= self.velocity
-
-
 
 
 
@@ -155,7 +152,8 @@ class Spaceship(pygame.sprite.Sprite):
         if key[pygame.K_SPACE] and current_time - self.previous_time > cooldown and self.ammo >0:
             gun.play(maxtime=350)
             self.ammo -= 1
-            bullet1 = Bullets(self.rect.centerx - 5, self.rect.centery,5,bullet_image,enemy_group, True)
+            bullet1 = Bullets(self.rect.centerx - 5, self.rect.centery,5,bullet_image,enemy_group, True
+                              ,False)
             bullet_group.add(bullet1)
             # record current time
             self.previous_time = current_time # timer reset
@@ -208,7 +206,6 @@ class Alien(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(alien_image,(50,50))
         self.rect = self.image.get_rect()  #  Creates a rectangle from the image
         self.rect.topleft = (x,y) # Specifies lcoation of rectangle
-        self.health_start = health
         self.health_remaining = health
         self.previous_time = pygame.time.get_ticks()  # when an instance of Spaceship is created, the time is recorded here
         self.moving = True
@@ -219,9 +216,8 @@ class Alien(pygame.sprite.Sprite):
 
 
 
+
     def update(self):
-
-
 
 
         if self.rect.x <= 0:
@@ -231,8 +227,7 @@ class Alien(pygame.sprite.Sprite):
 
 
         if self.moving == True:
-            if self.rect.x >0:
-                self.rect.x -=5
+            self.rect.x -=5
 
         else:
             if self.rect.x <= SCREEN_WIDTH - 50:
@@ -240,12 +235,6 @@ class Alien(pygame.sprite.Sprite):
         self.movement()
         self.shoot()
 
-    # def check_collision(self):
-    #     if pygame.sprite.spritecollide(self, bullet_group, True):
-    #         damage.play(maxtime=260)
-    #         explosion = Explosion(self.rect.centerx,self.rect.centery,100)
-    #         explosion_group.add(explosion)
-    #         explosion_sound.play()
 
     def movement(self):
 
@@ -270,10 +259,22 @@ class Alien(pygame.sprite.Sprite):
         self.current = pygame.time.get_ticks()
 
         if self.current - self.start >= self.cooldown:
-            bullet2 = Bullets(self.rect.centerx - 5, self.rect.centery, -20, alien_laser, player_group, False)
+            bullet2 = Bullets(self.rect.centerx - 5, self.rect.centery, -20, alien_laser, player_group, False
+                              ,True)
             bullet_group.add(bullet2)
             laser_sfx.play()
             self.start = self.current
+
+    def collision(self):
+        if pygame.sprite.spritecollide(self, bullet_group,True):
+            pass
+
+
+
+class AlienLaser(pygame.sprite.Sprite):
+    pass
+
+
 
 
 
@@ -311,10 +312,18 @@ for i in range(2):
     alien_group.add(alien_ship)
 
 
+
+# create function for meteor/enemy animation
 def get_image(sheet, frame, width, height):
+
     image = pygame.Surface((width, height)).convert_alpha()  # create image surface
     image.blit(sheet, (0, 0), ((frame * width), 0, width, height))  # blit spritesheet image onto image surface
     image.set_colorkey('black')
+
+    return image
+
+
+
 
 frame_0 = get_image(spritesheet, 0, 50, 100)
 frame_1 = get_image(spritesheet, 1, 50, 100)
@@ -325,10 +334,10 @@ frame_5 = get_image(spritesheet, 5, 50, 100)
 frame_6 = get_image(spritesheet, 6, 50, 100)
 frame_7 = get_image(spritesheet, 7, 50, 100)
 
-animation_list = []
-animation_steps = 8
-for x in range(animation_steps):
-    animation_list.append(get_image())
+frames = [frame_0,frame_1, frame_2,frame_3,frame_4,frame_5,frame_6,frame_7]
+
+
+
 
 
 
@@ -337,11 +346,41 @@ for x in range(animation_steps):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,velocity):
         pygame.sprite.Sprite.__init__(self)
-        self.image = enemy_image
+        self.animation_list = []
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+        for i in range(len(frames)):
+            img = frames[i]
+            self.animation_list.append(img) # add each frame variable to animation list
+        self.image = self.animation_list[self.frame_index] # set self.image to element/frame in list
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
         self.velocity = velocity
         self.active = True
+
+    def update_animation(self):
+        # update animation
+        ANIMATION_COOLDOWN = 50
+
+        #check if enough time has passed since last update
+
+
+        # update image depending on frame
+        self.image = self.animation_list[self.frame_index]
+
+        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+            self.update_time = pygame.time.get_ticks()
+            self.frame_index +=1
+
+        if self.frame_index >= len(self.animation_list):
+            self.frame_index = 0
+
+
+        # if animation has run out then reset back to the start
+
+
+
+
 
     def update(self):
         self.rect.y += self.velocity
@@ -353,6 +392,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.y <=20:
             missile_sfx.play(0,350)
         self.check_collision()
+        self.update_animation()
         if self.velocity > 16:
             self.velocity = 16
 
@@ -370,17 +410,17 @@ class Enemy(pygame.sprite.Sprite):
 # create enemy sprite group
 enemy_group = pygame.sprite.Group()
 # create missile object
-for i in range(4):
+for i in range(1):
     missile = Enemy(random.randint(0,SCREEN_WIDTH),0,10)
     enemy_group.add(missile) # add 8 missiles to enemy sprite group
 
-for i in range(4):
+for i in range(1):
     missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
     enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
 
 
 class Bullets(pygame.sprite.Sprite):
-    def __init__(self,x,y,direction,image,target, destroy):
+    def __init__(self,x,y,direction,image, target, destroy,harm):
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
         self.image = image
         self.rect = self.image.get_rect()  #  Assigns image to rectangle
@@ -388,25 +428,48 @@ class Bullets(pygame.sprite.Sprite):
         self.direction = direction
         self.target = target
         self.destroy = destroy
+        self.harm = harm
+        self.active = True
 
 
 
     def update(self):
 
+
         self.rect.y -= self.direction
         if self.rect.bottom < 0:
             self.kill()
-            self.rect.x
+        #eliminate lasers that have left the screen to avoid irrelevant processing
+        if self.rect.bottom >= SCREEN_HEIGHT:
+            self.kill()
+            self.active = True
+
         self.check_collision()
 
+    # code for when player missile collides with meteorites
 
     def check_collision(self):
-        if pygame.sprite.spritecollide(self, self.target, self.destroy):
+        if pygame.sprite.spritecollide(self, self.target, self.destroy) and self.harm != True:
             self.kill()
             explosion = Explosion(self.rect.centerx,self.rect.centery,2)
             explosion_group.add(explosion)
             explosion_sound.play(maxtime=1000)
-            spaceship.score +=1
+            spaceship.score += 1
+
+        # collision code for when alien laser collides with spaceship
+
+        elif pygame.sprite.spritecollide(self, self.target, self.destroy) and self.harm == True and self.active:
+            spaceship.health_remaining -=1
+            # avoid duplicate colisions
+            self.active = False
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
+            explosion_group.add(explosion)
+            explosion_sound.play(maxtime=1000)
+
+
+
+
+
 
 
 bullet_group = pygame.sprite.Group()
@@ -574,12 +637,18 @@ def play():
         play_bg.draw()
 
 
+
+
+
+
+
         pygame.display.set_caption('Space Invader')
 
         #  drawing background image onto screen
 
 
         play_bg.speed +=0.004
+
 
         if play_bg.speed >= 18:
             play_bg.speed = 18
@@ -610,6 +679,9 @@ def play():
         for spritegrp in [player_group,enemy_group,bullet_group,explosion_group,ammo_group,alien_group]:
             spritegrp.update()
             spritegrp.draw(screen)
+
+
+
 
 
 
@@ -756,16 +828,6 @@ def game_over():
                     return
 
 
-
-
-
-
-
-
-
-
-
-
         pygame.display.update()
 
 
@@ -789,6 +851,7 @@ def main_menu():
                                     # for some reason main menu code affects game_over code
 
         menu_bg.draw()
+
 
 
 
