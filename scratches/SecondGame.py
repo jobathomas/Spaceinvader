@@ -1,8 +1,10 @@
 import sys
+from token import FSTRING_END
+
 import pygame
 import random
 
-
+from pygame.sprite import collide_mask
 
 # initialise pygame objects
 pygame.init()
@@ -152,8 +154,8 @@ class Spaceship(pygame.sprite.Sprite):
         if key[pygame.K_SPACE] and current_time - self.previous_time > cooldown and self.ammo >0:
             gun.play(maxtime=350)
             self.ammo -= 1
-            bullet1 = Bullets(self.rect.centerx - 5, self.rect.centery,5,bullet_image,enemy_group, True
-                              ,False)
+            bullet1 = Bullets(self.rect.centerx - 5, self.rect.centery,bullet_image)
+
             bullet_group.add(bullet1)
             # record current time
             self.previous_time = current_time # timer reset
@@ -259,22 +261,43 @@ class Alien(pygame.sprite.Sprite):
         self.current = pygame.time.get_ticks()
 
         if self.current - self.start >= self.cooldown:
-            bullet2 = Bullets(self.rect.centerx - 5, self.rect.centery, -20, alien_laser, player_group, False
-                              ,True)
-            bullet_group.add(bullet2)
+            laser_1 = AlienLaser(self.rect.centerx-5,self.rect.centery-20,alien_laser)
+            alien_laser_group.add(laser_1)
+
             laser_sfx.play()
             self.start = self.current
 
-    def collision(self):
-        if pygame.sprite.spritecollide(self, bullet_group,True):
-            pass
+
 
 
 
 class AlienLaser(pygame.sprite.Sprite):
-    pass
+    def __init__(self, x, y, image):
+        pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
+        self.image = image
+        self.rect = self.image.get_rect()  # Assigns image to rectangle
+        self.rect.topleft = (x, y)  # Specifies lcoation of rectangle
 
+    def update(self):
 
+        self.rect.y +=20
+        # eliminate lasers that have left the screen to avoid irrelevant processing
+        if self.rect.bottom >= SCREEN_HEIGHT:
+            self.kill()
+
+        self.check_collision()
+
+        # code for when player missile collides with meteorites
+
+    def check_collision(self):
+        if pygame.sprite.spritecollide(self, player_group, False,pygame.sprite.collide_mask):
+            self.kill()
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
+            explosion_group.add(explosion)
+            explosion_sound.play(maxtime=1000)
+            spaceship.health_remaining -=1
+
+alien_laser_group = pygame.sprite.Group()
 
 
 
@@ -414,57 +437,46 @@ for i in range(1):
     missile = Enemy(random.randint(0,SCREEN_WIDTH),0,10)
     enemy_group.add(missile) # add 8 missiles to enemy sprite group
 
+# create 2nd set of missile objects moving at different speed
 for i in range(1):
     missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
     enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
 
 
 class Bullets(pygame.sprite.Sprite):
-    def __init__(self,x,y,direction,image, target, destroy,harm):
+    def __init__(self,x,y,image):
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
         self.image = image
         self.rect = self.image.get_rect()  #  Assigns image to rectangle
         self.rect.topleft = (x,y) # Specifies lcoation of rectangle
-        self.direction = direction
-        self.target = target
-        self.destroy = destroy
-        self.harm = harm
-        self.active = True
 
 
 
     def update(self):
 
 
-        self.rect.y -= self.direction
+        self.rect.y -=8
         if self.rect.bottom < 0:
             self.kill()
-        #eliminate lasers that have left the screen to avoid irrelevant processing
-        if self.rect.bottom >= SCREEN_HEIGHT:
-            self.kill()
-            self.active = True
 
         self.check_collision()
 
-    # code for when player missile collides with meteorites
 
     def check_collision(self):
-        if pygame.sprite.spritecollide(self, self.target, self.destroy) and self.harm != True:
+        if pygame.sprite.spritecollide(self, enemy_group, True):
             self.kill()
             explosion = Explosion(self.rect.centerx,self.rect.centery,2)
             explosion_group.add(explosion)
             explosion_sound.play(maxtime=1000)
             spaceship.score += 1
 
-        # collision code for when alien laser collides with spaceship
-
-        elif pygame.sprite.spritecollide(self, self.target, self.destroy) and self.harm == True and self.active:
-            spaceship.health_remaining -=1
-            # avoid duplicate colisions
-            self.active = False
+        elif pygame.sprite.spritecollide(self,alien_group, False):
+            self.kill()
             explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
             explosion_group.add(explosion)
             explosion_sound.play(maxtime=1000)
+
+
 
 
 
@@ -676,7 +688,7 @@ def play():
 
 
         #  draw sprite groups
-        for spritegrp in [player_group,enemy_group,bullet_group,explosion_group,ammo_group,alien_group]:
+        for spritegrp in [player_group,enemy_group,bullet_group,explosion_group,ammo_group,alien_group,alien_laser_group]:
             spritegrp.update()
             spritegrp.draw(screen)
 
