@@ -1,5 +1,4 @@
 import sys
-from token import FSTRING_END
 
 import pygame
 import random
