@@ -81,9 +81,6 @@ loading_music = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/loa
 scroll_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/scroll.mp3")
 
 
-
-
-
 #  writing main game code
 
 class Background():
@@ -110,12 +107,12 @@ class Background():
 
 
 class Spaceship(pygame.sprite.Sprite):
-    def __init__(self,x,y,health):
+    def __init__(self,x,y,health): # constructor method
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
         self.image = pygame.transform.scale(player_image,(50,50))
         self.rect = self.image.get_rect()  #  Creates a rectangle from the image
         self.rect.topleft = (x,y) # Specifies lcoation of rectangle
-        self.velocity = 7
+        self.velocity = 7 # specifies
         self.health_start = health
         self.health_remaining = health
         self.previous_time = pygame.time.get_ticks()  # when an instance of Spaceship is created, the time is recorded here
@@ -186,8 +183,9 @@ class Spaceship(pygame.sprite.Sprite):
 
 #  create sprite group
 player_group = pygame.sprite.Group()
+player_health = 5
 #  create spaceship object
-spaceship = Spaceship(SCREEN_WIDTH/2,SCREEN_HEIGHT - (PLAYER_WIDTH*2),5) # create spaceship object of spaceship class
+spaceship = Spaceship(SCREEN_WIDTH/2,SCREEN_HEIGHT - (PLAYER_WIDTH*2),player_health) # create spaceship object of spaceship class
 player_group.add(spaceship) #  add spaceship object to spaceship sprite group
 
 
@@ -202,7 +200,7 @@ aggression_start = pygame.time.get_ticks()
 
 
 class Alien(pygame.sprite.Sprite):
-    def __init__(self,x,y,health):
+    def __init__(self,x,y,health,cooldown):
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
         self.image = pygame.transform.scale(alien_image,(50,50))
         self.rect = self.image.get_rect()  #  Creates a rectangle from the image
@@ -212,13 +210,12 @@ class Alien(pygame.sprite.Sprite):
         self.moving = True
         self.aggression_start = pygame.time.get_ticks()
         self.start = pygame.time.get_ticks()
-
-
-
-
+        self.cooldown = cooldown
 
 
     def update(self):
+
+        # code for moving from left to right
 
 
         if self.rect.x <= 0:
@@ -255,7 +252,6 @@ class Alien(pygame.sprite.Sprite):
 
     def shoot(self):
 
-        self.cooldown = 1000
 
         self.current = pygame.time.get_ticks()
 
@@ -265,6 +261,9 @@ class Alien(pygame.sprite.Sprite):
 
             laser_sfx.play()
             self.start = self.current
+        if len(enemy_group) <=0:
+            self.cooldown = 500
+
 
 
 
@@ -297,42 +296,11 @@ class AlienLaser(pygame.sprite.Sprite):
             spaceship.health_remaining -=1
 
 alien_laser_group = pygame.sprite.Group()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 alien_group = pygame.sprite.Group()
 
 for i in range(2):
-    alien_ship = Alien(random.randint(0,SCREEN_WIDTH),10,10)
+    alien_ship = Alien(random.randint(0,SCREEN_WIDTH),10,10,1000)
     alien_group.add(alien_ship)
-
 
 
 # create function for meteor/enemy animation
@@ -340,11 +308,9 @@ def get_image(sheet, frame, width, height):
 
     image = pygame.Surface((width, height)).convert_alpha()  # create image surface
     image.blit(sheet, (0, 0), ((frame * width), 0, width, height))  # blit spritesheet image onto image surface
-    image.set_colorkey('black')
+    image.set_colorkey('black') # makes image transparent
 
     return image
-
-
 
 
 frame_0 = get_image(spritesheet, 0, 50, 100)
@@ -432,12 +398,12 @@ class Enemy(pygame.sprite.Sprite):
 # create enemy sprite group
 enemy_group = pygame.sprite.Group()
 # create missile object
-for i in range(1):
+for i in range(4):
     missile = Enemy(random.randint(0,SCREEN_WIDTH),0,10)
     enemy_group.add(missile) # add 8 missiles to enemy sprite group
 
 # create 2nd set of missile objects moving at different speed
-for i in range(1):
+for i in range(4):
     missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
     enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
 
@@ -526,13 +492,11 @@ explosion_group = pygame.sprite.Group()
 
 def enemy_replenish():
 
-
-    if len(enemy_group) < 2:
-        explosion2_sound.play()
-        for i in range(10):
-            missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
-            enemy_group.add(missile)  # add 8 missiles to enemy sprite group
-            missile.velocity +=6
+    explosion2_sound.play()
+    for i in range(10):
+        missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
+        enemy_group.add(missile)  # add 8 missiles to enemy sprite group
+        missile.velocity +=6
 
 
 class Ammo(pygame.sprite.Sprite):
@@ -629,29 +593,29 @@ class Button():
 
 
 
+theme = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
+theme.set_volume(0.7)
+
+play_bg = Background(bg_image, 5)
 
 
+enemy_reload = pygame.time.get_ticks()
 
 def play():
 
+    global best_score, return_menu
 
-
-    theme = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
-    theme.set_volume(0.7)
     theme.play(-1)  # music will play indefinitely with -1 arg
 
-    play_bg = Background(bg_image,5)
 
     while True:
 
+        if return_menu:
+            return
+
+
 
         play_bg.draw()
-
-
-
-
-
-
 
         pygame.display.set_caption('Space Invader')
 
@@ -674,14 +638,14 @@ def play():
 
 
 
-
-
-
-
-
         clock.tick(60)
 
-        enemy_replenish()
+        current_time = pygame.time.get_ticks()
+        if len(enemy_group) <=0:
+            if current_time - enemy_reload >= 5000:
+                print(current_time - enemy_reload)
+                enemy_replenish()
+                current_time = enemy_reload
 
         ammo_replenish()
 
@@ -690,10 +654,6 @@ def play():
         for spritegrp in [player_group,enemy_group,bullet_group,explosion_group,ammo_group,alien_group,alien_laser_group]:
             spritegrp.update()
             spritegrp.draw(screen)
-
-
-
-
 
 
         #  Event handler code
@@ -707,10 +667,8 @@ def play():
             pygame.mixer.pause()
             pause()
 
-        if player_dead:
-            return
 
-        #  check for game over and reset
+
 
 
         pygame.display.update()
@@ -734,20 +692,30 @@ def pause():
 
         screen.blit(pause_image,(0,0))
 
+        resume_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4, 'RESUME')
+        quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 'QUIT')
+
+        for buttons in [resume_button,quit_button]:
+            buttons.change_colour(pygame.mouse.get_pos())
+            buttons.check_for_input(pygame.mouse.get_pos())
+            buttons.draw()
+
 
 
         for event in pygame.event.get():  # Event handler
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        key = pygame.key.get_pressed()
-        if key[pygame.K_k]:
-            pygame.mixer.unpause()
-            return
-
-
-
-
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if resume_button.check_for_input(pygame.mouse.get_pos()):
+                    scroll_sfx.play()
+                    pygame.time.delay(200)
+                    pygame.mixer.unpause()
+                    return
+                elif quit_button.check_for_input(pygame.mouse.get_pos()):
+                    scroll_sfx.play()
+                    pygame.time.delay(200)
+                    sys.exit()
 
         pygame.display.update()
 
@@ -779,29 +747,24 @@ def options():
 
 
 
-
-
-
-
-
         pygame.display.update()
 
 
 current_state = ''
 
-
-player_dead = False
+return_menu = ''
 
 def game_over():
-    global player_dead, current_state
+    global current_state, return_menu
 
     current_state = 'GAME OVER'
 
 
 
-    quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, 'QUIT')
-    restart_button = Button(button_surface,SCREEN_WIDTH/2,SCREEN_HEIGHT - 100,'RESTART')
 
+    quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT/2.5, 'QUIT')
+    restart_button = Button(button_surface,SCREEN_WIDTH/2,SCREEN_HEIGHT/1.5,'RESTART')
+    menu_button = Button(button_surface,SCREEN_WIDTH/2,SCREEN_HEIGHT - 60,'MAIN MENU')
 
     font = pygame.font.SysFont('ebrima', 40)  # create font object
     text = font.render('GAME OVER', True, 'white')  # create text surface object
@@ -818,7 +781,7 @@ def game_over():
 
         screen.blit(text, text_rect)  # copy surface onto screen surface
 
-        for element in [restart_button, quit_button]:
+        for element in [restart_button, quit_button,menu_button]:
             element.draw()
             element.change_colour(pygame.mouse.get_pos())
 
@@ -834,18 +797,75 @@ def game_over():
                     scroll_sfx.play()
                     pygame.time.delay(200)
                     sys.exit()
-                if restart_button.check_for_input(pygame.mouse.get_pos()):
-                    player_dead = True
+                elif restart_button.check_for_input(pygame.mouse.get_pos()):
+                    scroll_sfx.play()
+                    pygame.time.delay(200)
+                    spaceship.health_remaining = player_health
+                    play_bg.speed = 5
+                    spaceship.score = 0
+                    spaceship.ammo = 10
+                    spaceship.rect.x = SCREEN_WIDTH / 2
+                    alien_group.empty()
+                    enemy_group.empty()
+                    for i in range(2):
+                        alien_ship = Alien(random.randint(0, SCREEN_WIDTH), 10, 10, 1000)
+                        alien_group.add(alien_ship)
+                    for i in range(4):
+                        missile = Enemy(random.randint(0, SCREEN_WIDTH), 0, 10)
+                        enemy_group.add(missile)  # add 8 missiles to enemy sprite group
+                    # create 2nd set of missile objects moving at different speed
+                    for i in range(4):
+                        missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
+                        enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
+                    theme.play(-1)
                     return
+                elif menu_button.check_for_input(pygame.mouse.get_pos()):
+                    return_menu = True
+                    loading_music.play(-1)
+                    spaceship.health_remaining = player_health
+                    play_bg.speed = 5
+                    spaceship.score = 0
+                    spaceship.ammo = 10
+                    spaceship.rect.x = SCREEN_WIDTH / 2
+                    alien_group.empty()
+                    enemy_group.empty()
+                    for i in range(2):
+                        alien_ship = Alien(random.randint(0, SCREEN_WIDTH), 10, 10, 1000)
+                        alien_group.add(alien_ship)
+                    for i in range(4):
+                        missile = Enemy(random.randint(0, SCREEN_WIDTH), 0, 10)
+                        enemy_group.add(missile)  # add 8 missiles to enemy sprite group
+                    # create 2nd set of missile objects moving at different speed
+                    for i in range(4):
+                        missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
+                        enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
+
+                    return
+
 
 
         pygame.display.update()
 
 
-def main_menu():
-    global current_state
+best_score = 0
 
-    current_state = 'MAIN MENU'
+def high_score():
+
+    global best_score
+    high_score_font = pygame.font.SysFont('ebrima', 40)  # create font object
+    text = high_score_font.render(f'Your high score is: {best_score} kills!', True, 'white')  # create text surface object
+    text_rect = text.get_rect(topleft=(10, 10))  # create rectangle from text surface object
+    screen.blit(text,text_rect)  # copy/paste surface onto screen surface
+    # for score in best_score:
+
+
+
+def main_menu():
+    global current_state, return_menu
+
+    current_state = 'MAIN MENU'     # separating code into game states
+    # for some reason main menu code affects game_over code
+
     pygame.display.set_caption('Menu')
     loading_music.play(-1)
     menu_bg = Background(bg_image,0.25)
@@ -857,11 +877,16 @@ def main_menu():
 
     while True:
 
+        if return_menu == True:
+            return_menu = False # prevents returning to menu infintely when already returned to menu
 
-        current_state = 'MAIN MENU' # separating code into game states
-                                    # for some reason main menu code affects game_over code
 
         menu_bg.draw()
+
+        current_state = "MAIN MENU"
+
+
+        high_score()
 
 
 
@@ -888,6 +913,8 @@ def main_menu():
                     scroll_sfx.play()
                     pygame.time.delay(200)
                     sys.exit()
+
+
 
 
         pygame.display.update()
