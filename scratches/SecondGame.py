@@ -122,11 +122,8 @@ class Spaceship(pygame.sprite.Sprite):
         self.ammo = 10
 
 
-
-
     #  overriding "update" method in Sprite class
     def update(self):
-
 
 
         #  get key press
@@ -135,8 +132,6 @@ class Spaceship(pygame.sprite.Sprite):
             self.rect.x-= self.velocity
         if key[pygame.K_RIGHT] and self.rect.x < SCREEN_WIDTH - PLAYER_WIDTH:
             self.rect.x+= self.velocity
-
-
 
 
         #  draw health bar
@@ -158,8 +153,6 @@ class Spaceship(pygame.sprite.Sprite):
 
         if self.health_remaining <=0:
             self.kill()
-
-
 
 
         # update mask - in update function so mask moves as spaceship moves from left to right
@@ -205,12 +198,14 @@ class Alien(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(alien_image,(50,50))
         self.rect = self.image.get_rect()  #  Creates a rectangle from the image
         self.rect.topleft = (x,y) # Specifies lcoation of rectangle
+        self.health_start = health
         self.health_remaining = health
         self.previous_time = pygame.time.get_ticks()  # when an instance of Spaceship is created, the time is recorded here
         self.moving = True
         self.aggression_start = pygame.time.get_ticks()
         self.start = pygame.time.get_ticks()
         self.cooldown = cooldown
+
 
 
     def update(self):
@@ -220,27 +215,38 @@ class Alien(pygame.sprite.Sprite):
 
         if self.rect.x <= 0:
             self.moving = False
-        if self.rect.x >= SCREEN_WIDTH - 50:
+        elif self.rect.x >= SCREEN_WIDTH - 50:
             self.moving = True
 
+        # health bar code
 
+        pygame.draw.rect(screen, 'red', pygame.Rect(self.rect.x, self.rect.y + 50, self.rect.width, 7, ))
+        if self.health_remaining > 0:
+            pygame.draw.rect(screen, 'green', pygame.Rect(self.rect.x, self.rect.y + 50,
+                                                          int(self.rect.width * (
+                                                                      self.health_remaining / self.health_start)), 7))
         if self.moving == True:
             self.rect.x -=5
-
-        else:
-            if self.rect.x <= SCREEN_WIDTH - 50:
+        elif self.rect.x <= SCREEN_WIDTH - 50:
                 self.rect.x += 5
+
+        if self.health_remaining <=-0:
+            self.kill()
+
+
         self.movement()
         self.shoot()
+        self.collision()
+
 
 
     def movement(self):
 
-        cooldown = 5000 # 10 seconds
+        evolution = 5000 # every 5 seconds, move down screen
 
 
         self.aggression_current = pygame.time.get_ticks()
-        if self.aggression_current - self.aggression_start >= cooldown:
+        if self.aggression_current - self.aggression_start >= evolution:
             if self.rect.y <= SCREEN_HEIGHT:
 
                 self.rect.y += 10
@@ -261,11 +267,21 @@ class Alien(pygame.sprite.Sprite):
 
             laser_sfx.play()
             self.start = self.current
-        if len(enemy_group) <=0:
+        if len(enemy_group) <=2:
             self.cooldown = 500
+        else:
+            self.cooldown = 1000
 
 
+    def collision(self):
 
+        if pygame.sprite.spritecollide(self, bullet_group, True):
+            self.health_remaining -=1
+            self.image = pygame.transform.scale(alien_image, (100, 100))
+            self.image = pygame.transform.scale(alien_image, (50, 50))
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
+            explosion_group.add(explosion)
+            explosion_sound.play(maxtime=1000)
 
 
 
@@ -435,11 +451,7 @@ class Bullets(pygame.sprite.Sprite):
             explosion_sound.play(maxtime=1000)
             spaceship.score += 1
 
-        elif pygame.sprite.spritecollide(self,alien_group, False):
-            self.kill()
-            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
-            explosion_group.add(explosion)
-            explosion_sound.play(maxtime=1000)
+
 
 
 
@@ -493,10 +505,15 @@ explosion_group = pygame.sprite.Group()
 def enemy_replenish():
 
     explosion2_sound.play()
-    for i in range(10):
+    for i in range(5):
         missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
         enemy_group.add(missile)  # add 8 missiles to enemy sprite group
         missile.velocity +=6
+    for i in range(5):
+        missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
+        enemy_group.add(missile)  # add 8 missiles to enemy sprite group
+        missile.velocity +=5
+
 
 
 class Ammo(pygame.sprite.Sprite):
@@ -530,18 +547,19 @@ class Ammo(pygame.sprite.Sprite):
 
 
 
+
 ammo_group = pygame.sprite.Group()
 ammo = Ammo(random.randint(50,SCREEN_WIDTH),0)
 ammo_group.add(ammo)
 
 
 previous_time = pygame.time.get_ticks()
-cooldown = 15000 # 15 seconds
+regeneration_time = 15000 # 15 seconds
 
 def ammo_replenish():
     global previous_time
     current_time = pygame.time.get_ticks()
-    if current_time - previous_time >= cooldown:
+    if current_time - previous_time >= regeneration_time:
         ammo2 = Ammo(random.randint(50, SCREEN_WIDTH), 0)
         ammo_group.add(ammo2)
         previous_time = current_time
@@ -603,7 +621,7 @@ enemy_reload = pygame.time.get_ticks()
 
 def play():
 
-    global best_score, return_menu
+    global return_menu
 
     theme.play(-1)  # music will play indefinitely with -1 arg
 
@@ -635,6 +653,9 @@ def play():
             game_over_sfx.play()
             pygame.time.delay(1400)
             game_over()
+
+
+
 
 
 
@@ -755,7 +776,7 @@ current_state = ''
 return_menu = ''
 
 def game_over():
-    global current_state, return_menu
+    global current_state, return_menu, best_score
 
     current_state = 'GAME OVER'
 
@@ -784,6 +805,9 @@ def game_over():
         for element in [restart_button, quit_button,menu_button]:
             element.draw()
             element.change_colour(pygame.mouse.get_pos())
+
+        if spaceship.score > best_score: # updating high score
+            best_score = spaceship.score
 
 
 
@@ -849,14 +873,15 @@ def game_over():
 
 best_score = 0
 
-def high_score():
+def high_score_text():
 
     global best_score
     high_score_font = pygame.font.SysFont('ebrima', 40)  # create font object
     text = high_score_font.render(f'Your high score is: {best_score} kills!', True, 'white')  # create text surface object
     text_rect = text.get_rect(topleft=(10, 10))  # create rectangle from text surface object
     screen.blit(text,text_rect)  # copy/paste surface onto screen surface
-    # for score in best_score:
+
+
 
 
 
@@ -885,8 +910,7 @@ def main_menu():
 
         current_state = "MAIN MENU"
 
-
-        high_score()
+        high_score_text()
 
 
 
