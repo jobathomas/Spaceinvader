@@ -85,8 +85,6 @@ scroll_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/scroll
 
 class Background():
 
-
-
     def __init__(self,image,speed):
         self.image = image
         self.speed = speed
@@ -104,9 +102,8 @@ class Background():
            self.position = 0
 
 
-
-
 class Spaceship(pygame.sprite.Sprite):
+
     def __init__(self,x,y,health): # constructor method
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
         self.image = pygame.transform.scale(player_image,(50,50))
@@ -195,8 +192,8 @@ aggression_start = pygame.time.get_ticks()
 class Alien(pygame.sprite.Sprite):
     def __init__(self,x,y,health,cooldown):
         pygame.sprite.Sprite.__init__(self)  # Call sprite initialiser
-        self.image = pygame.transform.scale(alien_image,(50,50))
-        self.rect = self.image.get_rect()  #  Creates a rectangle from the image
+        self.image = pygame.transform.scale(alien_image,(50,50)) # scale down image
+        self.rect = self.image.get_rect()  #  Creates a rectangle with same dimensions as image
         self.rect.topleft = (x,y) # Specifies lcoation of rectangle
         self.health_start = health
         self.health_remaining = health
@@ -215,6 +212,7 @@ class Alien(pygame.sprite.Sprite):
 
         if self.rect.x <= 0:
             self.moving = False
+
         elif self.rect.x >= SCREEN_WIDTH - 50:
             self.moving = True
 
@@ -227,8 +225,8 @@ class Alien(pygame.sprite.Sprite):
                                                                       self.health_remaining / self.health_start)), 7))
         if self.moving == True:
             self.rect.x -=5
-        elif self.rect.x <= SCREEN_WIDTH - 50:
-                self.rect.x += 5
+        else:
+            self.rect.x += 5
 
         if self.health_remaining <=-0:
             self.kill()
@@ -794,8 +792,6 @@ def game_over():
 
     while True:
 
-
-
         pygame.mixer.stop()
 
         screen.fill((0,0,0))
@@ -911,8 +907,6 @@ def main_menu():
         current_state = "MAIN MENU"
 
         high_score_text()
-
-
 
 
 
