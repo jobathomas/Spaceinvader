@@ -1,9 +1,12 @@
-import sys
+# import relevant libraries
 
+import sys
 import pygame
 import random
 
+# import collidemask library which enables pixel perfect collision detection 
 from pygame.sprite import collide_mask
+
 
 # initialise pygame objects
 pygame.init()
