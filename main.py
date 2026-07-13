@@ -158,6 +158,18 @@ player_health = 5
 spaceship = Spaceship(assets.SCREEN_WIDTH/2,assets.SCREEN_HEIGHT - (assets.PLAYER_WIDTH*2),player_health) # create spaceship object of spaceship class
 player_group.add(spaceship) #  add spaceship object to spaceship sprite group
 
+# creating particle effects system 
+# creates a trail of particles around the player
+
+
+class ParticleFX(pygame.sprite.Sprite):
+    def __init__(self):
+        pass
+
+
+
+
+
 
 alien_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/killer.png")
 
