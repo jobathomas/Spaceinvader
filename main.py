@@ -4,37 +4,15 @@ import sys
 import pygame
 import random
 
-# import collidemask library which enables pixel perfect collision detection 
-from pygame.sprite import collide_mask
-
 # initialise pygame objects
 pygame.init()
 
-#  specify screen dimensions
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 6005
+# import collidemask library which enables pixel perfect collision detection 
+from pygame.sprite import collide_mask
 
-#  create pygame screen
 
-screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-
-# set game caption
-pygame.display.set_caption('Space invaders')
-
-# load background images
-
-bg_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/space2.png")
-
-bg_image = pygame.transform.scale(bg_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
-
-options_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/options.jpg")
-options_image = pygame.transform.scale(options_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
-
-#  set game icon
-gameIcon = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/icon.jpg")
-pygame.display.set_icon(gameIcon)
-
-PLAYER_WIDTH = 50
+# import game assets
+import assets
 
 
 # load game sounds
@@ -73,7 +51,7 @@ ammo_sfx_load = pygame.mixer.music.load("C:/Users/User/OneDrive/Desktop/GAME/SFX
 
 #  load pause screen image
 pause_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/space.jpg")
-pause_image = pygame.transform.scale(pause_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
+pause_image = pygame.transform.scale(pause_image,(assets.SCREEN_WIDTH,assets.SCREEN_HEIGHT))
 
 
 
@@ -91,16 +69,16 @@ class Background():
         self.image = image
         self.speed = speed
         self.position = 0
-        self.screen_height = SCREEN_HEIGHT
+        self.SCREEN_HEIGHT = assets.SCREEN_HEIGHT
 
 
     def draw(self):
-        screen.blit(self.image,(0,self.position))
-        screen.blit(self.image,(0,-self.screen_height + self.position))
+        assets.screen.blit(self.image,(0,self.position))
+        assets.screen.blit(self.image,(0,-self.SCREEN_HEIGHT + self.position))
 
         self.position += self.speed
 
-        if self.position > self.screen_height:
+        if self.position > self.SCREEN_HEIGHT:
            self.position = 0
 
 
@@ -129,14 +107,14 @@ class Spaceship(pygame.sprite.Sprite):
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x-= self.velocity
-        if key[pygame.K_RIGHT] and self.rect.x < SCREEN_WIDTH - PLAYER_WIDTH:
+        if key[pygame.K_RIGHT] and self.rect.x < assets.SCREEN_WIDTH - assets.PLAYER_WIDTH:
             self.rect.x+= self.velocity
 
 
         #  draw health bar
-        pygame.draw.rect(screen,'red',pygame.Rect(self.rect.x,self.rect.y + 50,self.rect.width,10,))
+        pygame.draw.rect(assets.screen,'red',pygame.Rect(self.rect.x,self.rect.y + 50,self.rect.width,10,))
         if self.health_remaining >0:
-            pygame.draw.rect(screen, 'green', pygame.Rect(self.rect.x, self.rect.y + 50,
+            pygame.draw.rect(assets.screen, 'green', pygame.Rect(self.rect.x, self.rect.y + 50,
                                                         int(self.rect.width *(self.health_remaining/self.health_start)),10))
         current_time = pygame.time.get_ticks()
         cooldown = 500
@@ -163,12 +141,12 @@ class Spaceship(pygame.sprite.Sprite):
         #  add score text to screen
         self.text = self.score_font.render(f'Score:{self.score}', True, 'white')  # create text surface object
         self.textRect = self.text.get_rect(topleft=(10, 10))  # create rectangle from text surface object
-        screen.blit(self.text, self.textRect)  # copy surface onto screen surface
+        assets.screen.blit(self.text, self.textRect)  # copy surface onto screen surface
 
     def ammo_update(self):
         self.ammo_text = self.ammo_font.render(f'Missiles: {self.ammo}', True,'white')
-        self.ammo_rect = self.ammo_text.get_rect(topleft = (SCREEN_WIDTH - 200,10))
-        screen.blit(self.ammo_text,self.ammo_rect)
+        self.ammo_rect = self.ammo_text.get_rect(topleft = (assets.SCREEN_WIDTH - 200,10))
+        assets.screen.blit(self.ammo_text,self.ammo_rect)
 
 
 
@@ -177,7 +155,7 @@ class Spaceship(pygame.sprite.Sprite):
 player_group = pygame.sprite.Group()
 player_health = 5
 #  create spaceship object
-spaceship = Spaceship(SCREEN_WIDTH/2,SCREEN_HEIGHT - (PLAYER_WIDTH*2),player_health) # create spaceship object of spaceship class
+spaceship = Spaceship(assets.SCREEN_WIDTH/2,assets.SCREEN_HEIGHT - (assets.PLAYER_WIDTH*2),player_health) # create spaceship object of spaceship class
 player_group.add(spaceship) #  add spaceship object to spaceship sprite group
 
 
@@ -215,14 +193,14 @@ class Alien(pygame.sprite.Sprite):
         if self.rect.x <= 0:
             self.moving = False
 
-        elif self.rect.x >= SCREEN_WIDTH - 50:
+        elif self.rect.x >= assets.SCREEN_WIDTH - 50:
             self.moving = True
 
         # health bar code
 
-        pygame.draw.rect(screen, 'red', pygame.Rect(self.rect.x, self.rect.y + 50, self.rect.width, 7, ))
+        pygame.draw.rect(assets.screen, 'red', pygame.Rect(self.rect.x, self.rect.y + 50, self.rect.width, 7, ))
         if self.health_remaining > 0:
-            pygame.draw.rect(screen, 'green', pygame.Rect(self.rect.x, self.rect.y + 50,
+            pygame.draw.rect(assets.screen, 'green', pygame.Rect(self.rect.x, self.rect.y + 50,
                                                           int(self.rect.width * (
                                                                       self.health_remaining / self.health_start)), 7))
         if self.moving == True:
@@ -247,13 +225,13 @@ class Alien(pygame.sprite.Sprite):
 
         self.aggression_current = pygame.time.get_ticks()
         if self.aggression_current - self.aggression_start >= evolution:
-            if self.rect.y <= SCREEN_HEIGHT:
+            if self.rect.y <= assets.SCREEN_HEIGHT:
 
                 self.rect.y += 10
                 self.aggression_start= self.aggression_current
 
 
-        if self.rect.y >= SCREEN_HEIGHT - 50:
+        if self.rect.y >= assets.SCREEN_HEIGHT - 50:
             self.aggression_start = self.aggression_current
 
     def shoot(self):
@@ -296,7 +274,7 @@ class AlienLaser(pygame.sprite.Sprite):
 
         self.rect.y +=20
         # eliminate lasers that have left the screen to avoid irrelevant processing
-        if self.rect.bottom >= SCREEN_HEIGHT:
+        if self.rect.bottom >= assets.SCREEN_HEIGHT:
             self.kill()
 
         self.check_collision()
@@ -315,7 +293,7 @@ alien_laser_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
 
 for i in range(2):
-    alien_ship = Alien(random.randint(0,SCREEN_WIDTH),10,10,1000)
+    alien_ship = Alien(random.randint(0,assets.SCREEN_WIDTH),10,10,1000)
     alien_group.add(alien_ship)
 
 
@@ -388,8 +366,8 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.y += self.velocity
-        if self.rect.y > SCREEN_HEIGHT:
-            self.rect.x = random.randint(0, SCREEN_WIDTH)
+        if self.rect.y > assets.SCREEN_HEIGHT:
+            self.rect.x = random.randint(0, assets.SCREEN_WIDTH)
             self.rect.y = -5
             self.velocity += 0.2
             self.active = True
@@ -415,12 +393,12 @@ class Enemy(pygame.sprite.Sprite):
 enemy_group = pygame.sprite.Group()
 # create missile object
 for i in range(4):
-    missile = Enemy(random.randint(0,SCREEN_WIDTH),0,10)
+    missile = Enemy(random.randint(0,assets.SCREEN_WIDTH),0,10)
     enemy_group.add(missile) # add 8 missiles to enemy sprite group
 
 # create 2nd set of missile objects moving at different speed
 for i in range(4):
-    missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
+    missile2 = Enemy(random.randint(0, assets.SCREEN_WIDTH), 0, 12)
     enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
 
 
@@ -506,11 +484,11 @@ def enemy_replenish():
 
     explosion2_sound.play()
     for i in range(5):
-        missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
+        missile = Enemy(random.randint(0, assets.SCREEN_WIDTH), -20,7)
         enemy_group.add(missile)  # add 8 missiles to enemy sprite group
         missile.velocity +=6
     for i in range(5):
-        missile = Enemy(random.randint(0, SCREEN_WIDTH), -20,7)
+        missile = Enemy(random.randint(0, assets.SCREEN_WIDTH), -20,7)
         enemy_group.add(missile)  # add 8 missiles to enemy sprite group
         missile.velocity +=5
 
@@ -532,7 +510,7 @@ class Ammo(pygame.sprite.Sprite):
 
 
 
-        if self.rect.y > SCREEN_HEIGHT :
+        if self.rect.y > assets.SCREEN_HEIGHT :
             self.kill()
 
         self.collision()
@@ -549,7 +527,7 @@ class Ammo(pygame.sprite.Sprite):
 
 
 ammo_group = pygame.sprite.Group()
-ammo = Ammo(random.randint(50,SCREEN_WIDTH),0)
+ammo = Ammo(random.randint(50,assets.SCREEN_WIDTH),0)
 ammo_group.add(ammo)
 
 
@@ -560,7 +538,7 @@ def ammo_replenish():
     global previous_time
     current_time = pygame.time.get_ticks()
     if current_time - previous_time >= regeneration_time:
-        ammo2 = Ammo(random.randint(50, SCREEN_WIDTH), 0)
+        ammo2 = Ammo(random.randint(50, assets.SCREEN_WIDTH), 0)
         ammo_group.add(ammo2)
         previous_time = current_time
 
@@ -584,8 +562,8 @@ class Button():
 
 
     def draw(self):
-        screen.blit(self.image,(self.rect))  # blit image onto screen in the location of self.rect
-        screen.blit(self.text,self.text_rect) # blit text onto screen in location of text_rect
+        assets.screen.blit(self.image,(self.rect))  # blit image onto screen in the location of self.rect
+        assets.screen.blit(self.text,self.text_rect) # blit text onto screen in location of text_rect
         #pygame.draw.rect(screen, 'red',self.rect,2)
 
     def check_for_input(self, position):
@@ -614,7 +592,7 @@ class Button():
 theme = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
 theme.set_volume(0.7)
 
-play_bg = Background(bg_image, 5)
+play_bg = Background(assets.bg_image, 5)
 
 
 enemy_reload = pygame.time.get_ticks()
@@ -674,7 +652,7 @@ def play():
         #  draw sprite groups
         for spritegrp in [player_group,enemy_group,bullet_group,explosion_group,ammo_group,alien_group,alien_laser_group]:
             spritegrp.update()
-            spritegrp.draw(screen)
+            spritegrp.draw(assets.screen)
 
 
         #  Event handler code
@@ -711,10 +689,10 @@ def pause():
 
     while True:
 
-        screen.blit(pause_image,(0,0))
+        assets.screen.blit(pause_image,(0,0))
 
-        resume_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4, 'RESUME')
-        quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 'QUIT')
+        resume_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT / 4, 'RESUME')
+        quit_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT / 2, 'QUIT')
 
         for buttons in [resume_button,quit_button]:
             buttons.change_colour(pygame.mouse.get_pos())
@@ -742,8 +720,8 @@ def pause():
 
 def options():
 
-    options_bg = Background(options_image,0)
-    back_button = Button(button_surface, SCREEN_WIDTH / 2, button_height / 2.5, 'BACK')
+    options_bg = Background(assets.options_image,0)
+    back_button = Button(button_surface, assets.SCREEN_WIDTH / 2, button_height / 2.5, 'BACK')
 
 
     pygame.display.set_caption('Options')
@@ -783,22 +761,22 @@ def game_over():
 
 
 
-    quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT/2.5, 'QUIT')
-    restart_button = Button(button_surface,SCREEN_WIDTH/2,SCREEN_HEIGHT/1.5,'RESTART')
-    menu_button = Button(button_surface,SCREEN_WIDTH/2,SCREEN_HEIGHT - 60,'MAIN MENU')
+    quit_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT/2.5, 'QUIT')
+    restart_button = Button(button_surface,assets.SCREEN_WIDTH/2,assets.SCREEN_HEIGHT/1.5,'RESTART')
+    menu_button = Button(button_surface,assets.SCREEN_WIDTH/2,assets.SCREEN_HEIGHT - 60,'MAIN MENU')
 
     font = pygame.font.SysFont('ebrima', 40)  # create font object
     text = font.render('GAME OVER', True, 'white')  # create text surface object
-    text_rect = text.get_rect(topleft=(SCREEN_WIDTH/2 - 100, 100))  # create rectangle from text surface object
+    text_rect = text.get_rect(topleft=(assets.SCREEN_WIDTH/2 - 100, 100))  # create rectangle from text surface object
 
 
     while True:
 
         pygame.mixer.stop()
 
-        screen.fill((0,0,0))
+        assets.screen.fill((0,0,0))
 
-        screen.blit(text, text_rect)  # copy surface onto screen surface
+        assets.screen.blit(text, text_rect)  # copy surface onto screen surface
 
         for element in [restart_button, quit_button,menu_button]:
             element.draw()
@@ -826,18 +804,18 @@ def game_over():
                     play_bg.speed = 5
                     spaceship.score = 0
                     spaceship.ammo = 10
-                    spaceship.rect.x = SCREEN_WIDTH / 2
+                    spaceship.rect.x = assets.SCREEN_WIDTH / 2
                     alien_group.empty()
                     enemy_group.empty()
                     for i in range(2):
-                        alien_ship = Alien(random.randint(0, SCREEN_WIDTH), 10, 10, 1000)
+                        alien_ship = Alien(random.randint(0, assets.SCREEN_WIDTH), 10, 10, 1000)
                         alien_group.add(alien_ship)
                     for i in range(4):
-                        missile = Enemy(random.randint(0, SCREEN_WIDTH), 0, 10)
+                        missile = Enemy(random.randint(0, assets.SCREEN_WIDTH), 0, 10)
                         enemy_group.add(missile)  # add 8 missiles to enemy sprite group
                     # create 2nd set of missile objects moving at different speed
                     for i in range(4):
-                        missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
+                        missile2 = Enemy(random.randint(0, assets.SCREEN_WIDTH), 0, 12)
                         enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
                     theme.play(-1)
                     return
@@ -848,18 +826,18 @@ def game_over():
                     play_bg.speed = 5
                     spaceship.score = 0
                     spaceship.ammo = 10
-                    spaceship.rect.x = SCREEN_WIDTH / 2
+                    spaceship.rect.x = assets.SCREEN_WIDTH / 2
                     alien_group.empty()
                     enemy_group.empty()
                     for i in range(2):
-                        alien_ship = Alien(random.randint(0, SCREEN_WIDTH), 10, 10, 1000)
+                        alien_ship = Alien(random.randint(0, assets.SCREEN_WIDTH), 10, 10, 1000)
                         alien_group.add(alien_ship)
                     for i in range(4):
-                        missile = Enemy(random.randint(0, SCREEN_WIDTH), 0, 10)
+                        missile = Enemy(random.randint(0, assets.SCREEN_WIDTH), 0, 10)
                         enemy_group.add(missile)  # add 8 missiles to enemy sprite group
                     # create 2nd set of missile objects moving at different speed
                     for i in range(4):
-                        missile2 = Enemy(random.randint(0, SCREEN_WIDTH), 0, 12)
+                        missile2 = Enemy(random.randint(0, assets.SCREEN_WIDTH), 0, 12)
                         enemy_group.add(missile2)  # add 8 missiles to enemy sprite group
 
                     return
@@ -877,7 +855,7 @@ def high_score_text():
     high_score_font = pygame.font.SysFont('ebrima', 40)  # create font object
     text = high_score_font.render(f'Your high score is: {best_score} kills!', True, 'white')  # create text surface object
     text_rect = text.get_rect(topleft=(10, 10))  # create rectangle from text surface object
-    screen.blit(text,text_rect)  # copy/paste surface onto screen surface
+    assets.screen.blit(text,text_rect)  # copy/paste surface onto screen surface
 
 
 
@@ -891,11 +869,11 @@ def main_menu():
 
     pygame.display.set_caption('Menu')
     loading_music.play(-1)
-    menu_bg = Background(bg_image,0.25)
+    menu_bg = Background(assets.bg_image,0.25)
 
-    play_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4, 'PLAY')
-    options_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 'OPTIONS')
-    quit_button = Button(button_surface, SCREEN_WIDTH / 2, SCREEN_HEIGHT - 150, 'QUIT')
+    play_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT / 4, 'PLAY')
+    options_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT / 2, 'OPTIONS')
+    quit_button = Button(button_surface, assets.SCREEN_WIDTH / 2, assets.SCREEN_HEIGHT - 150, 'QUIT')
 
 
     while True:
