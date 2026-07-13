@@ -319,12 +319,6 @@ frame_7 = get_image(spritesheet, 7, 50, 100)
 frames = [frame_0,frame_1, frame_2,frame_3,frame_4,frame_5,frame_6,frame_7]
 
 
-
-
-
-
-
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,velocity):
         pygame.sprite.Sprite.__init__(self)
@@ -359,9 +353,6 @@ class Enemy(pygame.sprite.Sprite):
 
 
         # if animation has run out then reset back to the start
-
-
-
 
 
     def update(self):
@@ -428,15 +419,6 @@ class Bullets(pygame.sprite.Sprite):
             explosion_group.add(explosion)
             explosion_sound.play(maxtime=1000)
             spaceship.score += 1
-
-
-
-
-
-
-
-
-
 
 
 bullet_group = pygame.sprite.Group()
