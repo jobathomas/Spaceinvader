@@ -7,13 +7,12 @@ import random
 # import collidemask library which enables pixel perfect collision detection 
 from pygame.sprite import collide_mask
 
-
 # initialise pygame objects
 pygame.init()
 
 #  specify screen dimensions
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 6005
 
 #  create pygame screen
 
@@ -24,64 +23,64 @@ pygame.display.set_caption('Space invaders')
 
 # load background images
 
-bg_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/space2.png")
+bg_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/space2.png")
 
 bg_image = pygame.transform.scale(bg_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
 
-options_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/options.jpg")
+options_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/options.jpg")
 options_image = pygame.transform.scale(options_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
 
 #  set game icon
-gameIcon = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/icon.jpg")
+gameIcon = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/icon.jpg")
 pygame.display.set_icon(gameIcon)
 
 PLAYER_WIDTH = 50
 
 
 # load game sounds
-missile_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/missile.wav")
+missile_sfx = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/missile.wav")
 missile_sfx.set_volume(0)
 
-laser_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/laser.mp3")
+laser_sfx = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/laser.mp3")
 laser_sfx.set_volume(0.4)
 
-damage = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/explosion2.mp3")
-game_over_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/gameover.mp3")
-gun = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/raygun.wav")
-explosion_sound = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/explosion.mp3")
-explosion2_sound = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/gameover.mp3")
+damage = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/explosion2.mp3")
+game_over_sfx = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/gameover.mp3")
+gun = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/raygun.wav")
+explosion_sound = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/explosion.mp3")
+explosion2_sound = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/gameover.mp3")
 
 # create clock object
 clock = pygame.time.Clock()
 
 #  load player image
-player_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/icon.jpg")
+player_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/icon.jpg")
 
-enemy_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/enemy.png")
+enemy_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/enemy.png")
 enemy_image = pygame.transform.scale(enemy_image,(100,100))
 enemy_image = pygame.transform.rotate(enemy_image,180)
 
-bullet_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/storm_shadow.png")
+bullet_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/storm_shadow.png")
 
-spritesheet = pygame.image.load('C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/enemy.png').convert_alpha()
+spritesheet = pygame.image.load('C:/Users/User/OneDrive/Desktop/GAME/Sprite images/enemy.png').convert_alpha()
 
 spritesheet = pygame.transform.scale(spritesheet,(400,100))
 
-ammo_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/ammo.png")
+ammo_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/ammo.png")
 ammo_image= pygame.transform.scale(ammo_image,(50,50))
 
-ammo_sfx_load = pygame.mixer.music.load("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/reload.mp3")
+ammo_sfx_load = pygame.mixer.music.load("C:/Users/User/OneDrive/Desktop/GAME/SFX/reload.mp3")
 
 #  load pause screen image
-pause_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/space.jpg")
+pause_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/space.jpg")
 pause_image = pygame.transform.scale(pause_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
 
 
 
 # UI sfx
-click = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/click.mp3")
-loading_music = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/loading.mp3")
-scroll_sfx = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/scroll.mp3")
+click = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/click.mp3")
+loading_music = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/loading.mp3")
+scroll_sfx = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/scroll.mp3")
 
 
 #  writing main game code
@@ -182,9 +181,9 @@ spaceship = Spaceship(SCREEN_WIDTH/2,SCREEN_HEIGHT - (PLAYER_WIDTH*2),player_hea
 player_group.add(spaceship) #  add spaceship object to spaceship sprite group
 
 
-alien_image = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/killer.png")
+alien_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/killer.png")
 
-alien_laser = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/laser.png")
+alien_laser = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/laser.png")
 alien_laser = pygame.transform.scale(alien_laser,(25,25))
 alien_laser = pygame.transform.rotate(alien_laser,90)
 
@@ -469,7 +468,7 @@ class Explosion(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for num in range(1,6):
-            img = pygame.image.load(f"C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/exp{num}.png")
+            img = pygame.image.load(f"C:/Users/User/OneDrive/Desktop/GAME/Sprite images/exp{num}.png")
             if size == 1:
                 pygame.transform.scale(img,(20,20))
             if size == 2:
@@ -612,7 +611,7 @@ class Button():
 
 
 
-theme = pygame.mixer.Sound("C:/Users/jobat/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
+theme = pygame.mixer.Sound("C:/Users/User/OneDrive/Desktop/GAME/SFX/backgroundmusic.mp3")
 theme.set_volume(0.7)
 
 play_bg = Background(bg_image, 5)
@@ -700,7 +699,7 @@ def play():
 button_width = 300
 button_height = 200
 
-button_surface = pygame.image.load("C:/Users/jobat/OneDrive/Desktop/GAME/Sprite images/button1.png")
+button_surface = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/button1.png")
 button_surface = pygame.transform.scale(button_surface,(button_width,button_height))
 
 
