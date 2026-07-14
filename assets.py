@@ -24,8 +24,6 @@ pygame.display.set_icon(gameIcon)
 PLAYER_WIDTH = 50
 
 
-
-
 # load background images
 
 bg_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/space2.png")
@@ -34,4 +32,3 @@ bg_image = pygame.transform.scale(bg_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
 
 options_image = pygame.image.load("C:/Users/User/OneDrive/Desktop/GAME/Sprite images/options.jpg")
 options_image = pygame.transform.scale(options_image,(SCREEN_WIDTH,SCREEN_HEIGHT))
-
